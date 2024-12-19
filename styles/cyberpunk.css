@@ -1,0 +1,88 @@
+:root {
+  --neon-blue: #00f3ff;
+  --neon-pink: #ff00ff;
+  --dark-bg: #0a0a0a;
+  --cyber-yellow: #f0db4f;
+}
+
+body {
+  background-color: var(--dark-bg);
+  color: #fff;
+  font-family: 'Rajdhani', sans-serif;
+}
+
+.cyber-button {
+  background: linear-gradient(45deg, var(--neon-blue), var(--neon-pink));
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  text-transform: uppercase;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin: 10px;
+  text-decoration: none;
+}
+
+.cyber-button:hover {
+  box-shadow: 0 0 15px var(--neon-blue);
+  transform: scale(1.05);
+}
+
+table {
+  background: rgba(0, 0, 0, 0.8);
+  border: 2px solid var(--neon-blue);
+  border-collapse: collapse;
+  width: 100%;
+  margin: 20px 0;
+}
+
+th, td {
+  border: 1px solid var(--neon-blue);
+  padding: 12px;
+  text-align: left;
+}
+
+th {
+  background: linear-gradient(45deg, var(--neon-blue), transparent);
+  color: white;
+}
+
+.form-container {
+  background: rgba(0, 0, 0, 0.8);
+  padding: 20px;
+  border: 2px solid var(--neon-blue);
+  border-radius: 10px;
+  max-width: 600px;
+  margin: 20px auto;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="date"],
+select {
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid var(--neon-blue);
+  color: white;
+  padding: 8px;
+  margin: 5px 0;
+  border-radius: 4px;
+  width: 100%;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+select:focus {
+  outline: none;
+  box-shadow: 0 0 10px var(--neon-blue);
+}
+
+.filter-section {
+  background: rgba(0, 0, 0, 0.8);
+  padding: 15px;
+  border: 1px solid var(--neon-pink);
+  border-radius: 8px;
+  margin-bottom: 20px;
+} 
