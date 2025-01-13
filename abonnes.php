@@ -20,7 +20,6 @@ if(isset($_POST['ajouter_abonne'])) {
     exit; 
 }
 
-// Traitement de la suppression d'un abonné
 if(isset($_POST['supprimer_abonne'])) {
     $id_abonne = $_POST['id_abonne'];
     $sql = "DELETE FROM abonnes WHERE id = ?";
@@ -63,7 +62,7 @@ $abonnes = $stmt->fetchAll();
             </div>
             <?php if(isset($_SESSION['message'])): ?>
                 <div class="success-message"><?= htmlspecialchars($_SESSION['message']) ?></div>
-                <?php unset($_SESSION['message']); // Supprimer le message après l'affichage ?>
+                <?php unset($_SESSION['message']);?>
             <?php endif; ?>
         </div>
 
@@ -131,7 +130,6 @@ $abonnes = $stmt->fetchAll();
     }
 
     function editAbonne(id) {
-        // Fonction à implémenter pour l'édition
         console.log("Édition de l'abonné " + id);
     }
     </script>

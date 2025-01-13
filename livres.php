@@ -19,14 +19,13 @@ if(isset($_POST['ajouter_livre'])) {
     exit; 
 }
 
-// Traitement de la suppression d'un livre
 if(isset($_POST['supprimer_livre'])) {
     $id_livre = $_POST['id_livre'];
     $sql = "DELETE FROM livres WHERE id = ?";
     $stmt = $pdo->prepare($sql);
     $stmt->execute([$id_livre]);
-    echo json_encode(["success" => true, "message" => "📖 Livre supprimé avec succès ! 🗑️"]); // Message de succès
-    exit; // Terminer le script après la suppression
+    echo json_encode(["success" => true, "message" => "📖 Livre supprimé avec succès ! 🗑️"]); 
+    exit; 
 }
 
 // Récupération des livres
@@ -69,7 +68,7 @@ $categories = $pdo->query($categorieQuery)->fetchAll(PDO::FETCH_COLUMN);
             </form>
             <?php if(isset($_SESSION['message'])): ?>
                 <div class="success-message"><?= htmlspecialchars($_SESSION['message']) ?></div>
-                <?php unset($_SESSION['message']); // Supprimer le message après l'affichage ?>
+                <?php unset($_SESSION['message']);?>
             <?php endif; ?>
         </div>
 
@@ -150,14 +149,13 @@ $categories = $pdo->query($categorieQuery)->fetchAll(PDO::FETCH_COLUMN);
         if(confirm("Êtes-vous sûr de vouloir supprimer ce livre ?")) {
             $.post('livres.php', { supprimer_livre: true, id_livre: id }, function(response) {
                 const data = JSON.parse(response);
-                alert(data.message); // Afficher le message de succès
-                location.reload(); // Recharger la page
+                alert(data.message); 
+                location.reload(); 
             });
         }
     }
 
     function editLivre(id) {
-        // Fonction à implémenter pour l'édition
         console.log("Édition du livre " + id);
     }
     </script>

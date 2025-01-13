@@ -3,7 +3,6 @@ require_once 'includes/db.php';
 
 define('DUREE_EMPRUNT', 14);
 
-// Traitement de l'ajout d'un emprunt
 if(isset($_POST['ajouter_emprunt'])) {
     $id_livre = $_POST['id_livre'];
     $id_abonne = $_POST['id_abonne'];
@@ -46,7 +45,6 @@ if(isset($_POST['retourner_livre'])) {
     $stmt->execute([$date_retour, $id_emprunt]);
 }
 
-// Récupération des emprunts avec informations détaillées
 $query = "SELECT e.*, 
           l.titre as livre_titre, 
           CONCAT(a.nom, ' ', a.prenom) as abonne_nom,
@@ -180,7 +178,6 @@ $abonnes = $pdo->query("SELECT * FROM abonnes")->fetchAll();
     </style>
 
     <script>
-    // Animation pour les messages
     document.addEventListener('DOMContentLoaded', function() {
         const messages = document.querySelectorAll('.success-message, .error-message');
         messages.forEach(msg => {

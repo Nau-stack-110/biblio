@@ -145,7 +145,6 @@ select:focus {
     border-radius: 5px;
 }
 
-/* Styles pour le conteneur flexible */
 .flex-container {
     display: flex;
     justify-content: space-between;
@@ -158,10 +157,10 @@ select:focus {
     margin-right: 20px; /* Espace entre le filtre et l'ajout */
 }
 
-/* Styles pour le conteneur d'ajout de livre */
 .add-book-container {
     flex: 0 0 55%; /* Prend 55% de l'espace disponible */
 }
+
 
 /* Styles pour les cartes */
 .cyber-card {
