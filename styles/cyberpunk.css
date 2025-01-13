@@ -36,6 +36,8 @@ table {
   border-collapse: collapse;
   width: 100%;
   margin: 20px 0;
+  border-radius: 10px;
+  overflow: hidden;
 }
 
 th, td {
@@ -69,6 +71,7 @@ select {
   margin: 5px 0;
   border-radius: 4px;
   width: 100%;
+  transition: border-color 0.3s;
 }
 
 input[type="text"]:focus,
@@ -76,7 +79,8 @@ input[type="number"]:focus,
 input[type="date"]:focus,
 select:focus {
   outline: none;
-  box-shadow: 0 0 10px var(--neon-blue);
+  border-color: var(--neon-pink);
+  box-shadow: 0 0 10px var(--neon-pink);
 }
 
 .filter-section {
@@ -86,3 +90,147 @@ select:focus {
   border-radius: 8px;
   margin-bottom: 20px;
 } 
+
+.cyber-btn{
+  background-color: green;
+  color: white;
+  padding: 14px;
+}
+
+.cyber-card {
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid var(--neon-blue);
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 0;
+    box-shadow: 0 0 15px var(--neon-blue);
+    transition: transform 0.3s;
+}
+
+.cyber-card:hover {
+    transform: scale(1.02);
+}
+
+.cyber-btn, .cyber-button {
+    background: linear-gradient(45deg, var(--neon-blue), var(--neon-pink));
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-transform: uppercase;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 10px;
+}
+
+.cyber-btn:hover, .cyber-button:hover {
+    box-shadow: 0 0 15px var(--neon-blue);
+    transform: scale(1.05);
+}
+
+.success-message {
+    background: rgba(0, 255, 0, 0.1);
+    border-color: #00ff00;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+    animation: fadeIn 0.5s;
+}
+
+.error-message {
+    background: rgba(255, 0, 0, 0.1);
+    border-color: #ff0000;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+/* Styles pour le conteneur flexible */
+.flex-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+/* Styles pour le conteneur de filtres */
+.filter-container {
+    flex: 0 0 40%; /* Prend 40% de l'espace disponible */
+    margin-right: 20px; /* Espace entre le filtre et l'ajout */
+}
+
+/* Styles pour le conteneur d'ajout de livre */
+.add-book-container {
+    flex: 0 0 55%; /* Prend 55% de l'espace disponible */
+}
+
+/* Styles pour les cartes */
+.cyber-card {
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid var(--neon-blue);
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 0;
+    box-shadow: 0 0 15px var(--neon-blue);
+    transition: transform 0.3s;
+}
+
+.cyber-card:hover {
+    transform: scale(1.02);
+}
+
+/* Styles pour le conteneur principal */
+.container {
+    max-width: 1200px; 
+    margin: 0 auto; 
+    padding: 20px; 
+}
+
+/* Styles pour les champs de formulaire */
+input[type="text"],
+input[type="number"],
+select {
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid var(--neon-blue);
+    color: white;
+    padding: 8px;
+    margin: 5px 0;
+    border-radius: 4px;
+    width: 100%;
+    transition: border-color 0.3s;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+select:focus {
+    outline: none;
+    border-color: var(--neon-pink);
+    box-shadow: 0 0 10px var(--neon-pink);
+}
+.cyber-btn2{
+  background: linear-gradient(45deg,rgb(172, 14, 14),rgb(165, 75, 75));
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  text-transform: uppercase;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin: 10px;
+}
+.cyber-btn, .cyber-btn2 {
+    transition: transform 0.3s;
+}
+
+.cyber-btn:hover, .cyber-btn2:hover {
+    transform: scale(1.05);
+}
+
+.cyber-card {
+    animation: fadeIn 0.5s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}

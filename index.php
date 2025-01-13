@@ -1,15 +1,12 @@
 <?php
 require_once 'includes/db.php';
 
-// Statistiques des livres
 $stmt = $pdo->query("SELECT COUNT(*) as total FROM livres");
 $livres = $stmt->fetch()['total'];
 
-// Statistiques des abonnés
 $stmt = $pdo->query("SELECT COUNT(*) as total FROM abonnes");
 $abonnes = $stmt->fetch()['total'];
 
-// Statistiques des emprunts
 $stmt = $pdo->query("SELECT COUNT(*) as total FROM emprunts WHERE date_retour IS NULL");
 $emprunts_en_cours = $stmt->fetch()['total'];
 ?>
@@ -19,7 +16,6 @@ $emprunts_en_cours = $stmt->fetch()['total'];
 <head>
     <meta charset="UTF-8">
     <title>Bibliothèque Cyberpunk</title>
-    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles/cyberpunk.css">
     <style>
         .dashboard {
@@ -113,7 +109,7 @@ $emprunts_en_cours = $stmt->fetch()['total'];
 </head>
 <body>
     <div class="header">
-        <h1>Bibliothèque Cyberpunk</h1>
+        <h1>Bibliothèque NAKAY</h1>
         <p>Système de Gestion Numérique</p>
     </div>
 
@@ -139,5 +135,7 @@ $emprunts_en_cours = $stmt->fetch()['total'];
         <a href="abonnes.php" class="cyber-link">Gestion des Abonnés</a>
         <a href="emprunts.php" class="cyber-link">Gestion des Emprunts</a>
     </div>
+
+<script src="js/jquery-2.2.3.min.js"></script>
 </body>
 </html> 

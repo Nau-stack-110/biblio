@@ -1,50 +1,41 @@
 <?php
+session_start(); 
 require_once 'includes/db.php';
 
-// Traitement de l'ajout d'un livre
 if(isset($_POST['ajouter_livre'])) {
     $titre = $_POST['titre'];
     $auteur = $_POST['auteur'];
     $isbn = $_POST['isbn'];
     $categorie = $_POST['categorie'];
-    
-    $sql = "INSERT INTO livres (titre, auteur, isbn, categorie) VALUES (?, ?, ?, ?)";
+    $disponible = isset($_POST['disponible']) ? 1 : 0;
+
+    $sql = "INSERT INTO livres (titre, auteur, isbn, categorie, disponible) VALUES (?, ?, ?, ?, ?)";
     $stmt = $pdo->prepare($sql);
-    $stmt->execute([$titre, $auteur, $isbn, $categorie]);
+    $stmt->execute([$titre, $auteur, $isbn, $categorie, $disponible]);
+    
+    // Stocker le message dans la session
+    $_SESSION['message'] = "📚 Livre ajouté avec succès ! 🎉"; 
+    header("Location: livres.php");
+    exit; 
 }
 
-// Filtres
-$search = isset($_GET['search']) ? $_GET['search'] : '';
-$categorie = isset($_GET['categorie']) ? $_GET['categorie'] : '';
-$disponibilite = isset($_GET['disponibilite']) ? $_GET['disponibilite'] : '';
-
-// Requête de base
-$query = "SELECT * FROM livres WHERE 1=1";
-$params = [];
-
-if($search) {
-    $query .= " AND (titre LIKE ? OR auteur LIKE ? OR isbn LIKE ?)";
-    $searchTerm = "%$search%";
-    $params = array_merge($params, [$searchTerm, $searchTerm, $searchTerm]);
+// Traitement de la suppression d'un livre
+if(isset($_POST['supprimer_livre'])) {
+    $id_livre = $_POST['id_livre'];
+    $sql = "DELETE FROM livres WHERE id = ?";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$id_livre]);
+    echo json_encode(["success" => true, "message" => "📖 Livre supprimé avec succès ! 🗑️"]); // Message de succès
+    exit; // Terminer le script après la suppression
 }
 
-if($categorie) {
-    $query .= " AND categorie = ?";
-    $params[] = $categorie;
-}
+// Récupération des livres
+$query = "SELECT * FROM livres";
+$livres = $pdo->query($query)->fetchAll();
 
-if($disponibilite !== '') {
-    $query .= " AND disponible = ?";
-    $params[] = $disponibilite;
-}
-
-$stmt = $pdo->prepare($query);
-$stmt->execute($params);
-$livres = $stmt->fetchAll();
-
-// Récupérer les catégories uniques
-$stmt = $pdo->query("SELECT DISTINCT categorie FROM livres");
-$categories = $stmt->fetchAll(PDO::FETCH_COLUMN);
+// Récupération des catégories
+$categorieQuery = "SELECT DISTINCT categorie FROM livres";
+$categories = $pdo->query($categorieQuery)->fetchAll(PDO::FETCH_COLUMN);
 ?>
 
 <!DOCTYPE html>
@@ -52,46 +43,45 @@ $categories = $stmt->fetchAll(PDO::FETCH_COLUMN);
 <head>
     <meta charset="UTF-8">
     <title>Gestion des Livres</title>
-    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles/cyberpunk.css">
+    <script src="js/jquery-2.2.3.min.js"></script>
 </head>
 <body>
-    <a href="index.php" class="cyber-button">Retour à l'accueil</a>
-    <?php include 'includes/nav.php'; ?>
+    <a href="index.php" class="cyber-button">🏠 Retour à l'accueil</a>
     
     <div class="container">
-        <div class="form-container">
-            <form method="POST" action="">
-                <input type="text" name="titre" placeholder="Titre du livre" required>
+        <div class="cyber-card">
+            <h2>Ajouter un Livre</h2>
+            <form method="POST" class="cyber-form">
+                <input type="text" name="titre" placeholder="Titre" required>
                 <input type="text" name="auteur" placeholder="Auteur" required>
-                <button type="submit" class="cyber-button">Ajouter le livre</button>
+                <input type="text" name="isbn" placeholder="ISBN" required>
+                <select name="categorie" required>
+                    <option value="">Sélectionner une catégorie</option>
+                    <?php foreach($categories as $categorie): ?>
+                        <option value="<?= htmlspecialchars($categorie) ?>"><?= htmlspecialchars($categorie) ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <label>
+                    <input type="checkbox" name="disponible" checked> Disponible
+                </label>
+                <button type="submit" name="ajouter_livre" class="cyber-button">Ajouter le livre</button>
             </form>
+            <?php if(isset($_SESSION['message'])): ?>
+                <div class="success-message"><?= htmlspecialchars($_SESSION['message']) ?></div>
+                <?php unset($_SESSION['message']); // Supprimer le message après l'affichage ?>
+            <?php endif; ?>
         </div>
 
         <div class="cyber-card">
             <h2>Liste des Livres</h2>
-            <div class="filter-section">
-                <input type="text" id="searchLivre" class="cyber-input" 
-                       placeholder="Rechercher un livre..." 
-                       value="<?= htmlspecialchars($search) ?>">
-                
-                <select id="filterCategorie" class="cyber-input">
-                    <option value="">Toutes les catégories</option>
-                    <?php foreach($categories as $cat): ?>
-                        <option value="<?= htmlspecialchars($cat) ?>" 
-                                <?= $categorie === $cat ? 'selected' : '' ?>>
-                            <?= htmlspecialchars($cat) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-
-                <select id="filterDispo" class="cyber-input">
-                    <option value="">Tous les états</option>
-                    <option value="1" <?= $disponibilite === '1' ? 'selected' : '' ?>>Disponible</option>
-                    <option value="0" <?= $disponibilite === '0' ? 'selected' : '' ?>>Emprunté</option>
-                </select>
-            </div>
-            
+            <input type="text" id="searchLivre" placeholder="Rechercher un livre" />
+            <select id="filterCategorie">
+                <option value="">Filtrer par catégorie</option>
+                <?php foreach($categories as $categorie): ?>
+                    <option value="<?= htmlspecialchars($categorie) ?>"><?= htmlspecialchars($categorie) ?></option>
+                <?php endforeach; ?>
+            </select>
             <table class="cyber-table">
                 <thead>
                     <tr>
@@ -99,24 +89,21 @@ $categories = $stmt->fetchAll(PDO::FETCH_COLUMN);
                         <th>Auteur</th>
                         <th>ISBN</th>
                         <th>Catégorie</th>
-                        <th>Statut</th>
+                        <th>Disponible</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="livresTableBody">
                     <?php foreach($livres as $livre): ?>
                     <tr>
                         <td><?= htmlspecialchars($livre['titre']) ?></td>
                         <td><?= htmlspecialchars($livre['auteur']) ?></td>
                         <td><?= htmlspecialchars($livre['isbn']) ?></td>
                         <td><?= htmlspecialchars($livre['categorie']) ?></td>
+                        <td><?= $livre['disponible'] ? 'Oui' : 'Non' ?></td>
                         <td>
-                            <span class="status-badge <?= $livre['disponible'] ? 'available' : 'borrowed' ?>">
-                                <?= $livre['disponible'] ? 'Disponible' : 'Emprunté' ?>
-                            </span>
-                        </td>
-                        <td>
-                            <button class="cyber-btn" onclick="editLivre(<?= $livre['id'] ?>)">Éditer</button>
+                            <button class="cyber-btn" onclick="editLivre(<?= $livre['id'] ?>)">✏️</button>
+                            <button class="cyber-btn2" onclick="deleteLivre(<?= $livre['id'] ?>)">🗑️</button>
                         </td>
                     </tr>
                     <?php endforeach; ?>
@@ -126,22 +113,53 @@ $categories = $stmt->fetchAll(PDO::FETCH_COLUMN);
     </div>
 
     <script>
-    function updateFilters() {
-        const search = document.getElementById('searchLivre').value;
-        const categorie = document.getElementById('filterCategorie').value;
-        const disponibilite = document.getElementById('filterDispo').value;
-        
-        let url = 'livres.php?';
-        if(search) url += `search=${search}&`;
-        if(categorie) url += `categorie=${categorie}&`;
-        if(disponibilite !== '') url += `disponibilite=${disponibilite}`;
-        
-        window.location.href = url;
+    $(document).ready(function() {
+        $('#searchLivre').on('input', function() {
+            const searchValue = $(this).val();
+            const filterValue = $('#filterCategorie').val();
+            $.ajax({
+                url: 'ajax/search_livres.php',
+                method: 'GET',
+                data: { search: searchValue, categorie: filterValue },
+                success: function(data) {
+                    $('#livresTableBody').html(data);
+                }
+            });
+        });
+
+        $('#filterCategorie').on('change', function() {
+            const filterValue = $(this).val();
+            const searchValue = $('#searchLivre').val();
+            $.ajax({
+                url: 'ajax/search_livres.php',
+                method: 'GET',
+                data: { search: searchValue, categorie: filterValue },
+                success: function(data) {
+                    $('#livresTableBody').html(data);
+                }
+            });
+        });
+
+        // Disparition du message après 8 secondes
+        setTimeout(function() {
+            $('.success-message').fadeOut();
+        }, 8000);
+    });
+
+    function deleteLivre(id) {
+        if(confirm("Êtes-vous sûr de vouloir supprimer ce livre ?")) {
+            $.post('livres.php', { supprimer_livre: true, id_livre: id }, function(response) {
+                const data = JSON.parse(response);
+                alert(data.message); // Afficher le message de succès
+                location.reload(); // Recharger la page
+            });
+        }
     }
 
-    document.getElementById('searchLivre').addEventListener('input', updateFilters);
-    document.getElementById('filterCategorie').addEventListener('change', updateFilters);
-    document.getElementById('filterDispo').addEventListener('change', updateFilters);
+    function editLivre(id) {
+        // Fonction à implémenter pour l'édition
+        console.log("Édition du livre " + id);
+    }
     </script>
 </body>
-</html>
+</html> 

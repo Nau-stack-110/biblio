@@ -1,7 +1,6 @@
 <?php
 require_once 'includes/db.php';
 
-// Configuration de la durée d'emprunt (en jours)
 define('DUREE_EMPRUNT', 14);
 
 // Traitement de l'ajout d'un emprunt
@@ -69,11 +68,10 @@ $abonnes = $pdo->query("SELECT * FROM abonnes")->fetchAll();
 <head>
     <meta charset="UTF-8">
     <title>Gestion des Emprunts</title>
-    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles/cyberpunk.css">
 </head>
 <body>
-    <a href="index.php" class="cyber-button">Retour à l'accueil</a>
+    <a href="index.php" class="cyber-button"> 🏠 Retour à l'accueil</a>
     <?php include 'includes/nav.php'; ?>
     
     <div class="container">

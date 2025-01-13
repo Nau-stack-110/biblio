@@ -1,7 +1,9 @@
 <?php
+session_start();
 require_once 'includes/db.php';
 
-// Traitement de l'ajout d'un abonné
+$message = ''; 
+
 if(isset($_POST['ajouter_abonne'])) {
     $nom = $_POST['nom'];
     $prenom = $_POST['prenom'];
@@ -11,9 +13,23 @@ if(isset($_POST['ajouter_abonne'])) {
     $sql = "INSERT INTO abonnes (nom, prenom, email, telephone) VALUES (?, ?, ?, ?)";
     $stmt = $pdo->prepare($sql);
     $stmt->execute([$nom, $prenom, $email, $telephone]);
+    
+    // Stocker le message dans la session
+    $_SESSION['message'] = "🎉 Abonné créé avec succès ! 📚"; 
+    header("Location: abonnes.php");
+    exit; 
 }
 
-// Recherche d'abonnés
+// Traitement de la suppression d'un abonné
+if(isset($_POST['supprimer_abonne'])) {
+    $id_abonne = $_POST['id_abonne'];
+    $sql = "DELETE FROM abonnes WHERE id = ?";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$id_abonne]);
+    echo json_encode(["success" => true, "message" => "📖 Abonné supprimé avec succès ! 🗑️"]); // Message de succès
+    exit; 
+}
+
 $search = isset($_GET['search']) ? $_GET['search'] : '';
 $query = "SELECT * FROM abonnes WHERE nom LIKE ? OR prenom LIKE ? OR email LIKE ? ORDER BY nom";
 $stmt = $pdo->prepare($query);
@@ -27,31 +43,33 @@ $abonnes = $stmt->fetchAll();
 <head>
     <meta charset="UTF-8">
     <title>Gestion des Abonnés</title>
-    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles/cyberpunk.css">
+    <script src="js/jquery-2.2.3.min.js"></script>
 </head>
 <body>
-    <?php include 'includes/nav.php'; ?>
+    <a href="index.php" class="cyber-button">🏠 Retour à l'accueil</a>
     
     <div class="container">
-        <a href="index.php" class="cyber-button">Retour à l'accueil</a>
-        
-        <div class="form-container">
-            <form method="POST" action="">
-                <input type="text" name="nom" placeholder="Nom de l'abonné" required>
-                <input type="text" name="prenom" placeholder="Prénom de l'abonné" required>
-                <button type="submit" class="cyber-button">Ajouter l'abonné</button>
-            </form>
+        <div class="cyber-card">
+            <h2>Ajouter un Abonné</h2>
+            <div class="form-container">
+                <form method="POST" action="">
+                    <input type="text" name="nom" placeholder="Nom de l'abonné" required>
+                    <input type="text" name="prenom" placeholder="Prénom de l'abonné" required>
+                    <input type="text" name="email" placeholder="Email" required>
+                    <input type="number" name="telephone" placeholder="Téléphone" required>
+                    <button type="submit" name="ajouter_abonne" class="cyber-button">Ajouter l'abonné</button>
+                </form>
+            </div>
+            <?php if(isset($_SESSION['message'])): ?>
+                <div class="success-message"><?= htmlspecialchars($_SESSION['message']) ?></div>
+                <?php unset($_SESSION['message']); // Supprimer le message après l'affichage ?>
+            <?php endif; ?>
         </div>
 
         <div class="cyber-card">
             <h2>Liste des Abonnés</h2>
-            <div class="filter-section">
-                <input type="text" id="searchAbonne" class="cyber-input" 
-                       placeholder="Rechercher un abonné..." 
-                       value="<?= htmlspecialchars($search) ?>">
-            </div>
-            
+            <input type="text" id="searchAbonne" placeholder="Rechercher un abonné" />
             <table class="cyber-table">
                 <thead>
                     <tr>
@@ -72,7 +90,8 @@ $abonnes = $stmt->fetchAll();
                         <td><?= htmlspecialchars($abonne['telephone']) ?></td>
                         <td><?= htmlspecialchars($abonne['date_inscription']) ?></td>
                         <td>
-                            <button class="cyber-btn" onclick="editAbonne(<?= $abonne['id'] ?>)">Éditer</button>
+                            <button class="cyber-btn" onclick="editAbonne(<?= $abonne['id'] ?>)">✏️ Editer</button>
+                            <button class="cyber-btn2" onclick="deleteAbonne(<?= $abonne['id'] ?>)">🗑️ Supprimer</button>
                         </td>
                     </tr>
                     <?php endforeach; ?>
@@ -82,10 +101,34 @@ $abonnes = $stmt->fetchAll();
     </div>
 
     <script>
-    document.getElementById('searchAbonne').addEventListener('input', function(e) {
-        const searchValue = e.target.value;
-        window.location.href = `abonnes.php?search=${searchValue}`;
+    $(document).ready(function() {
+        $('#searchAbonne').on('input', function() {
+            const searchValue = $(this).val();
+            $.ajax({
+                url: 'ajax/search_abonnes.php',
+                method: 'GET',
+                data: { search: searchValue },
+                success: function(data) {
+                    $('tbody').html(data);
+                }
+            });
+        });
+
+        // Disparition du message après 8 secondes
+        setTimeout(function() {
+            $('.success-message').fadeOut();
+        }, 8000);
     });
+
+    function deleteAbonne(id) {
+        if(confirm("Êtes-vous sûr de vouloir supprimer cet abonné ?")) {
+            $.post('abonnes.php', { supprimer_abonne: true, id_abonne: id }, function(response) {
+                const data = JSON.parse(response);
+                alert(data.message);
+                location.reload(); 
+            });
+        }
+    }
 
     function editAbonne(id) {
         // Fonction à implémenter pour l'édition
