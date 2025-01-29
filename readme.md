@@ -77,6 +77,5 @@ php -S localhost:8000
 ---
 
 <div align="center">
-  Made with ❤️ by [Naunau] | 
-  ![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)(https://github.com/Nau-stack-110)
+  Made with ❤️ by Naunau
 </div>
