@@ -30,6 +30,13 @@ CREATE TABLE IF NOT EXISTS emprunts (
     FOREIGN KEY (id_abonne) REFERENCES abonnes(id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS admin (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nom VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(50) NOT NULL
+);
+
 INSERT INTO livres (titre, auteur, isbn, categorie, disponible) VALUES
 ('Les Misérables', 'Victor Hugo', '9780140862072', 'Roman classique', true),
 ('1984', 'George Orwell', '9780451524935', 'Science-fiction', true),
@@ -42,6 +49,8 @@ INSERT INTO livres (titre, auteur, isbn, categorie, disponible) VALUES
 ('Les Fleurs du Mal', 'Charles Baudelaire', '9782070413133', 'Poésie', true),
 ('Le Rouge et le Noir', 'Stendhal', '9782070413140', 'Roman classique', true);
 
+INSERT INTO admin (nom, email, password) VALUES
+('Arnaud', 'arnaudandriatahiana00@gmail.com', 'Admin00@@');
 
 -- Création d'un trigger pour mettre à jour la disponibilité des livres
 DELIMITER //

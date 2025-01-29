@@ -1,4 +1,9 @@
 <?php
+session_start();
+if(!isset($_SESSION['admin'])) {
+    header("Location: login.php");
+    exit;
+}
 require_once 'includes/db.php';
 
 $stmt = $pdo->query("SELECT COUNT(*) as total FROM livres");
@@ -60,7 +65,8 @@ $emprunts_en_cours = $stmt->fetch()['total'];
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
             padding: 20px;
-            margin: 20px;
+            margin: 20px auto;
+            max-width: 1200px;
         }
 
         .cyber-link {
@@ -105,6 +111,86 @@ $emprunts_en_cours = $stmt->fetch()['total'];
             font-size: 1.2em;
             margin-top: 10px;
         }
+
+        .cyber-link-logout {
+            background: linear-gradient(45deg, #ff0000, #8b0000);
+            border: 2px solid var(--neon-red);
+            padding: 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 auto;
+        }
+
+        .cyber-link-logout:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px var(--neon-red);
+            background: linear-gradient(45deg, #8b0000, #ff0000);
+        }
+
+        .cyber-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+        }
+
+        .cyber-modal-content {
+            position: relative;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            border: 3px solid var(--neon-blue);
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 400px;
+            text-align: center;
+            animation: modalEntry 0.5s ease;
+        }
+
+        @keyframes modalEntry {
+            from { opacity: 0; transform: translate(-50%, -60%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            color: var(--neon-pink);
+            font-size: 28px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .close-modal:hover {
+            text-shadow: 0 0 15px var(--neon-pink);
+        }
+
+        .cyber-loader {
+            width: 40px;
+            height: 40px;
+            margin: 20px auto;
+            border: 4px solid var(--neon-blue);
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -131,11 +217,46 @@ $emprunts_en_cours = $stmt->fetch()['total'];
     </div>
 
     <div class="nav-grid">
-        <a href="livres.php" class="cyber-link">Gestion des Livres</a>
-        <a href="abonnes.php" class="cyber-link">Gestion des Abonnés</a>
-        <a href="emprunts.php" class="cyber-link">Gestion des Emprunts</a>
+        <a href="livres.php" class="cyber-link">📚 Gestion des Livres</a>
+        <a href="abonnes.php" class="cyber-link">👥 Gestion des Abonnés</a>
+        <a href="emprunts.php" class="cyber-link">🔄 Gestion des Emprunts</a>
     </div>
 
-<script src="js/jquery-2.2.3.min.js"></script>
+    <button class="cyber-link-logout" id="logoutBtn">🚪 Déconnexion</button>
+
+    <div id="logoutModal" class="cyber-modal">
+        <div class="cyber-modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>👋 Déconnexion réussie !</h2>
+            <p>Vous allez être redirigé vers la page de connexion...</p>
+            <div class="cyber-loader"></div>
+        </div>
+    </div>
+
+    <script src="js/jquery-2.2.3.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $('#logoutBtn').click(function() {
+            $('#logoutModal').fadeIn(300);
+            
+            $.ajax({
+                url: 'logout.php',
+                method: 'POST',
+                data: { 
+                    csrf_token: '<?= $_SESSION['csrf_token'] ?>'
+                },
+                success: function() {
+                    setTimeout(() => {
+                        window.location.href = 'login.php';
+                    }, 2000);
+                }
+            });
+        });
+
+        $('.close-modal').click(function() {
+            $('#logoutModal').fadeOut(300);
+        });
+    });
+    </script>
 </body>
 </html> 
