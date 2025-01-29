@@ -1,23 +1,27 @@
 <?php
 require_once '../includes/db.php';
 
-$search = isset($_GET['search']) ? $_GET['search'] : '';
+$search = isset($_GET['search']) ? "%{$_GET['search']}%" : '%';
 $categorie = isset($_GET['categorie']) ? $_GET['categorie'] : '';
 
-$query = "SELECT * FROM livres WHERE titre LIKE ? OR auteur LIKE ?";
-$params = ["%$search%", "%$search%"];
+try {
+    $sql = "SELECT * FROM livres 
+            WHERE (titre LIKE :search 
+            OR auteur LIKE :search 
+            OR isbn LIKE :search)";
+    
+    $params = [':search' => $search];
+    
+    if(!empty($categorie)) {
+        $sql .= " AND categorie = :categorie";
+        $params[':categorie'] = $categorie;
+    }
 
-if ($categorie) {
-    $query .= " AND categorie = ?";
-    $params[] = $categorie;
-}
-
-$query .= " ORDER BY titre";
-$stmt = $pdo->prepare($query);
-$stmt->execute($params);
-$livres = $stmt->fetchAll();
-
-foreach ($livres as $livre): ?>
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    
+    ob_start();
+    foreach($stmt as $livre): ?>
     <tr>
         <td><?= htmlspecialchars($livre['titre']) ?></td>
         <td><?= htmlspecialchars($livre['auteur']) ?></td>
@@ -29,4 +33,11 @@ foreach ($livres as $livre): ?>
             <button class="cyber-btn2" onclick="deleteLivre(<?= $livre['id'] ?>)">🗑️</button>
         </td>
     </tr>
-<?php endforeach; ?> 
+    <?php endforeach;
+    
+    echo ob_get_clean();
+
+} catch(Exception $e) {
+    http_response_code(500);
+    echo json_encode(['error' => $e->getMessage()]);
+} 

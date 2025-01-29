@@ -1,5 +1,8 @@
 <?php
 session_start();
+if(!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 require_once 'includes/db.php';
 
 $message = ''; 
@@ -21,12 +24,24 @@ if(isset($_POST['ajouter_abonne'])) {
 }
 
 if(isset($_POST['supprimer_abonne'])) {
-    $id_abonne = $_POST['id_abonne'];
-    $sql = "DELETE FROM abonnes WHERE id = ?";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([$id_abonne]);
-    echo json_encode(["success" => true, "message" => "📖 Abonné supprimé avec succès ! 🗑️"]); // Message de succès
-    exit; 
+    header('Content-Type: application/json');
+    
+    if(!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        die(json_encode(["success" => false, "message" => "Token CSRF invalide"]));
+    }
+    
+    $id_abonne = filter_input(INPUT_POST, 'id_abonne', FILTER_VALIDATE_INT);
+    
+    try {
+        $sql = "DELETE FROM abonnes WHERE id = ?";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$id_abonne]);
+        
+        echo json_encode(["success" => true, "message" => "Abonné supprimé"]);
+    } catch(Exception $e) {
+        echo json_encode(["success" => false, "message" => $e->getMessage()]);
+    }
+    exit;
 }
 
 $search = isset($_GET['search']) ? $_GET['search'] : '';
@@ -44,6 +59,97 @@ $abonnes = $stmt->fetchAll();
     <title>Gestion des Abonnés</title>
     <link rel="stylesheet" href="styles/cyberpunk.css">
     <script src="js/jquery-2.2.3.min.js"></script>
+    <style>
+    .cyber-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        z-index: 1000;
+    }
+
+    .cyber-modal-content {
+        position: relative;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: linear-gradient(145deg, #0a0a2a, #1a1a4a);
+        border: 2px solid var(--neon-pink);
+        border-radius: 15px;
+        padding: 30px;
+        max-width: 500px;
+        animation: modalEntry 0.5s ease;
+    }
+
+    @keyframes modalEntry {
+        from { opacity: 0; transform: translate(-50%, -60%); }
+        to { opacity: 1; transform: translate(-50%, -50%); }
+    }
+
+    .input-group {
+        margin: 1.5rem 0;
+    }
+
+    .cyber-label {
+        display: block;
+        color: var(--neon-blue);
+        margin-bottom: 0.5rem;
+        font-size: 1.1rem;
+    }
+
+    .cyber-input {
+        width: 100%;
+        padding: 12px;
+        background: rgba(0, 0, 0, 0.7);
+        border: 1px solid var(--neon-blue);
+        color: #fff;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+    }
+
+    .cyber-input:focus {
+        border-color: var(--neon-pink);
+        box-shadow: 0 0 15px var(--neon-pink);
+    }
+
+    .success-flash {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 0, 0, 0.95);
+        border: 2px solid #00ff00;
+        color: #00ff00;
+        padding: 30px 50px;
+        border-radius: 15px;
+        text-align: center;
+        font-size: 1.5rem;
+        z-index: 9999;
+        animation: popIn 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+        box-shadow: 0 0 40px rgba(0, 255, 0, 0.3);
+    }
+
+    @keyframes popIn {
+        0% {
+            transform: translate(-50%, -60%);
+            opacity: 0;
+        }
+        100% {
+            transform: translate(-50%, -50%);
+            opacity: 1;
+        }
+    }
+
+    .success-flash .emoji {
+        display: block;
+        font-size: 3rem;
+        margin-bottom: 15px;
+        filter: drop-shadow(0 0 10px #00ff00);
+    }
+    </style>
 </head>
 <body>
     <a href="index.php" class="cyber-button">🏠 Retour à l'accueil</a>
@@ -99,6 +205,33 @@ $abonnes = $stmt->fetchAll();
         </div>
     </div>
 
+    <div id="editAbonneModal" class="cyber-modal">
+        <div class="cyber-modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>👤 Modifier l'abonné</h2>
+            <form id="editAbonneForm">
+                <input type="hidden" id="editAbonneId">
+                <div class="input-group">
+                    <label class="cyber-label">📛 Nom</label>
+                    <input type="text" id="editNom" class="cyber-input" required>
+                </div>
+                <div class="input-group">
+                    <label class="cyber-label">📛 Prénom</label>
+                    <input type="text" id="editPrenom" class="cyber-input" required>
+                </div>
+                <div class="input-group">
+                    <label class="cyber-label">📧 Email</label>
+                    <input type="email" id="editEmail" class="cyber-input" required>
+                </div>
+                <div class="input-group">
+                    <label class="cyber-label">😽 Téléphone</label>
+                    <input type="tel" id="editTelephone" class="cyber-input" required>
+                </div>
+                <button type="submit" class="cyber-button">💾 Sauvegarder</button>
+            </form>
+        </div>
+    </div>
+
     <script>
     $(document).ready(function() {
         $('#searchAbonne').on('input', function() {
@@ -120,17 +253,128 @@ $abonnes = $stmt->fetchAll();
     });
 
     function deleteAbonne(id) {
-        if(confirm("Êtes-vous sûr de vouloir supprimer cet abonné ?")) {
-            $.post('abonnes.php', { supprimer_abonne: true, id_abonne: id }, function(response) {
-                const data = JSON.parse(response);
-                alert(data.message);
-                location.reload(); 
+        if(confirm("⚠️ Supprimer cet abonné ?")) {
+            $.ajax({
+                url: 'abonnes.php',
+                method: 'POST',
+                data: { 
+                    supprimer_abonne: true, 
+                    id_abonne: id,
+                    csrf_token: '<?= $_SESSION['csrf_token'] ?>'
+                },
+                dataType: 'json',
+                success: function(data) {
+                    // Vérifier si data est déjà un objet JSON
+                    if(typeof data === 'string') {
+                        try {
+                            data = JSON.parse(data);
+                        } catch(e) {
+                            showErrorMessage('❌ Réponse serveur invalide');
+                            return;
+                        }
+                    }
+                    
+                    if(data.success) {
+                        showSuccessMessage('🗑️ Abonné supprimé avec succès !');
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        showErrorMessage('❌ ' + data.message);
+                    }
+                },
+                error: function(xhr) {
+                    showErrorMessage('❌ Erreur serveur : ' + xhr.statusText);
+                }
             });
         }
     }
 
     function editAbonne(id) {
-        console.log("Édition de l'abonné " + id);
+        $.ajax({
+            url: 'ajax/get_abonne.php',
+            method: 'GET',
+            data: { id: id },
+            dataType: 'json',
+            success: function(abonne) {
+                $('#editAbonneId').val(abonne.id);
+                $('#editNom').val(abonne.nom);
+                $('#editPrenom').val(abonne.prenom);
+                $('#editEmail').val(abonne.email);
+                $('#editTelephone').val(abonne.telephone);
+                
+                $('#editAbonneModal').fadeIn(300);
+            },
+            error: function(xhr) {
+                showErrorMessage('❌ Erreur lors du chargement des données');
+            }
+        });
+    }
+
+    $('#editAbonneForm').submit(function(e) {
+        e.preventDefault();
+        
+        const formData = {
+            id: $('#editAbonneId').val(),
+            nom: $('#editNom').val(),
+            prenom: $('#editPrenom').val(),
+            email: $('#editEmail').val(),
+            telephone: $('#editTelephone').val(),
+            csrf_token: '<?= $_SESSION['csrf_token'] ?>'
+        };
+
+        $.ajax({
+            url: 'ajax/update_abonne.php',
+            method: 'POST',
+            data: formData,
+            dataType: 'json',
+            success: function(response) {
+                if(response.success) {
+                    $('#editAbonneModal').fadeOut(300);
+                    showSuccessMessage('👤 Abonné mis à jour avec succès ! 🎉');
+                    setTimeout(() => location.reload(), 3500);
+                } else {
+                    showErrorMessage('❌ ' + response.error);
+                }
+            },
+            error: function(xhr) {
+                showErrorMessage('❌ Erreur serveur : ' + xhr.statusText);
+            }
+        });
+    });
+
+    $(document).on('click', '.close-modal', function() {
+        $('.cyber-modal').fadeOut(300);
+    });
+
+    $(document).on('click', function(e) {
+        if ($(e.target).hasClass('cyber-modal')) {
+            $('.cyber-modal').fadeOut(300);
+        }
+    });
+
+    function showSuccessMessage(message) {
+        const $msg = $(`
+            <div class="success-flash">
+                <span class="emoji">${message.match(/^\p{Emoji}+/u)[0]}</span>
+                ${message}
+            </div>
+        `);
+        
+        $('body').append($msg);
+        
+        setTimeout(() => {
+            $msg.fadeOut(500, () => $msg.remove());
+        }, 3000);
+    }
+
+    function showErrorMessage(message) {
+        const $msg = $(`
+            <div class="error-message">
+                <span class="emoji">❌</span>
+                ${message}
+            </div>
+        `);
+        $('body').append($msg);
+        setTimeout(() => $msg.fadeOut(500, () => $msg.remove()), 3000);
     }
     </script>
 </body>
