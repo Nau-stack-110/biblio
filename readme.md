@@ -13,7 +13,7 @@
 - 🔒 Système d'authentification sécurisé
 - 📱 Design responsive
 - 📊 Tableau de bord statistique
-- 🔎 Recherche intelligente
+- 🔎 Recherche intelligente avec filtre
 - 🚨 Notifications de retard
 
 ## 🛠 Technologies
@@ -26,7 +26,7 @@
 
 ## 🎮 Démo
 
-[![Voir la démo](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](pas dispo)
+(pas dispo)
 
 ## 🚀 Installation
 
