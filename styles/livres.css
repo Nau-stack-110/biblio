@@ -1,0 +1,116 @@
+.cyber-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 1000;
+}
+
+.cyber-modal-content {
+    position: relative;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(145deg, #0a0a2a, #1a1a4a);
+    border: 2px solid var(--neon-pink);
+    box-shadow: 0 0 50px rgba(255, 0, 255, 0.3);
+    border-radius: 15px;
+    padding: 30px;
+    max-width: 500px;
+    animation: modalEntry 0.5s ease;
+}
+
+@keyframes modalEntry {
+    from { opacity: 0; transform: translate(-50%, -60%); }
+    to { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+.success-flash {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: rgba(0, 0, 0, 0.9);
+    border: 2px solid #00ff00;
+    color: #00ff00;
+    padding: 20px 30px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 1.2rem;
+    animation: slideIn 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    backdrop-filter: blur(5px);
+    z-index: 2000;
+}
+
+.success-flash .emoji {
+    font-size: 1.5rem;
+    filter: drop-shadow(0 0 5px #00ff00);
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.success-flash {
+    animation: slideIn 0.5s, pulse 1.5s infinite 0.5s;
+}
+
+.input-group {
+    margin: 1.5rem 0;
+    position: relative;
+}
+
+.cyber-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.1rem;
+    color: var(--neon-blue);
+    text-shadow: 0 0 15px var(--neon-blue);
+}
+
+.cyber-input {
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid var(--neon-blue);
+    transition: all 0.3s ease;
+}
+
+.cyber-input:focus {
+    border-color: var(--neon-pink);
+    box-shadow: 0 0 20px var(--neon-pink);
+}
+
+.cyber-button[type="submit"] {
+    background: linear-gradient(45deg, var(--neon-blue), var(--neon-pink));
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.2rem;
+    margin-top: 1.5rem;
+    transition: transform 0.3s ease;
+}
+
+.cyber-button[type="submit"]:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 30px var(--neon-pink);
+}
+
+@keyframes inputPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+    100% { transform: scale(1); }
+}
+
+.cyber-input:focus {
+    animation: inputPulse 1.5s infinite;
+}

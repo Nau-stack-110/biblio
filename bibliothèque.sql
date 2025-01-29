@@ -52,7 +52,7 @@ INSERT INTO livres (titre, auteur, isbn, categorie, disponible) VALUES
 INSERT INTO admin (nom, email, password) VALUES
 ('Arnaud', 'arnaudandriatahiana00@gmail.com', 'Admin00@@');
 
--- Création d'un trigger pour mettre à jour la disponibilité des livres
+-- trigger pour mettre à jour la disponibilité des livres
 DELIMITER //
 CREATE TRIGGER after_emprunt_insert
 AFTER INSERT ON emprunts

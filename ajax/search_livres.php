@@ -1,9 +1,7 @@
 <?php
 require_once '../includes/db.php';
-
 $search = isset($_GET['search']) ? "%{$_GET['search']}%" : '%';
 $categorie = isset($_GET['categorie']) ? $_GET['categorie'] : '';
-
 try {
     $sql = "SELECT * FROM livres 
             WHERE (titre LIKE :search 

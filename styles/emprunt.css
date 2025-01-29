@@ -1,0 +1,18 @@
+.retard {
+    background: rgba(255, 0, 0, 0.2) !important;
+}
+
+.retard-badge {
+    color: #ff0000;
+    text-shadow: 0 0 5px #ff0000;
+}
+
+.success-message {
+    background: rgba(0, 255, 0, 0.1);
+    border-color: #00ff00;
+}
+
+.error-message {
+    background: rgba(255, 0, 0, 0.1);
+    border-color: #ff0000;
+}

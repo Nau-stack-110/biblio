@@ -1,8 +1,6 @@
 <?php
 require_once '../includes/db.php';
-
 header('Content-Type: application/json');
-
 try {
     $data = [
         'id' => filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT),
@@ -12,7 +10,6 @@ try {
         'categorie' => filter_input(INPUT_POST, 'categorie', FILTER_SANITIZE_STRING),
         'disponible' => filter_input(INPUT_POST, 'disponible', FILTER_VALIDATE_BOOL)
     ];
-
     foreach($data as $key => $value) {
         if($value === false || $value === null) {
             throw new Exception("Champ $key invalide");
@@ -33,7 +30,6 @@ try {
     if($stmt->rowCount() === 0) {
         throw new Exception("Aucune modification effectuée");
     }
-
     echo json_encode(['success' => true, 'message' => '📖 Livre mis à jour !']);
     
 } catch(Exception $e) {

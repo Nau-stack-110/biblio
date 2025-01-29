@@ -12,7 +12,6 @@ if(isset($_POST['ajouter_emprunt'])) {
     try {
         $pdo->beginTransaction();
         
-        // Vérifier si le livre est disponible
         $stmt = $pdo->prepare("SELECT disponible FROM livres WHERE id = ?");
         $stmt->execute([$id_livre]);
         $livre = $stmt->fetch();
@@ -21,7 +20,6 @@ if(isset($_POST['ajouter_emprunt'])) {
             throw new Exception("Ce livre n'est pas disponible");
         }
         
-        // Créer l'emprunt
         $sql = "INSERT INTO emprunts (id_livre, id_abonne, date_emprunt, date_retour_prevue) 
                 VALUES (?, ?, ?, ?)";
         $stmt = $pdo->prepare($sql);
@@ -56,7 +54,6 @@ $query = "SELECT e.*,
           ORDER BY e.date_retour_prevue ASC";
 $emprunts = $pdo->query($query)->fetchAll();
 
-// Récupération des livres disponibles et des abonnés pour le formulaire
 $livres_dispo = $pdo->query("SELECT * FROM livres WHERE disponible = 1")->fetchAll();
 $abonnes = $pdo->query("SELECT * FROM abonnes")->fetchAll();
 ?>
@@ -67,6 +64,7 @@ $abonnes = $pdo->query("SELECT * FROM abonnes")->fetchAll();
     <meta charset="UTF-8">
     <title>Gestion des Emprunts</title>
     <link rel="stylesheet" href="styles/cyberpunk.css">
+    <link rel="stylesheet" href="styles/emprunt.css">
 </head>
 <body>
     <a href="index.php" class="cyber-button"> 🏠 Retour à l'accueil</a>
@@ -155,28 +153,6 @@ $abonnes = $pdo->query("SELECT * FROM abonnes")->fetchAll();
             </table>
         </div>
     </div>
-
-    <style>
-    .retard {
-        background: rgba(255, 0, 0, 0.2) !important;
-    }
-    
-    .retard-badge {
-        color: #ff0000;
-        text-shadow: 0 0 5px #ff0000;
-    }
-    
-    .success-message {
-        background: rgba(0, 255, 0, 0.1);
-        border-color: #00ff00;
-    }
-    
-    .error-message {
-        background: rgba(255, 0, 0, 0.1);
-        border-color: #ff0000;
-    }
-    </style>
-
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         const messages = document.querySelectorAll('.success-message, .error-message');

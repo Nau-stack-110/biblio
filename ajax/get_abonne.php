@@ -11,7 +11,6 @@ try {
     $abonne = $stmt->fetch();
 
     if(!$abonne) throw new Exception('Abonné non trouvé');
-    
     echo json_encode($abonne);
     
 } catch(Exception $e) {
