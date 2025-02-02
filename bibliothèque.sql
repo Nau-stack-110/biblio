@@ -50,7 +50,7 @@ INSERT INTO livres (titre, auteur, isbn, categorie, disponible) VALUES
 ('Le Rouge et le Noir', 'Stendhal', '9782070413140', 'Roman classique', true);
 
 INSERT INTO admin (nom, email, password) VALUES
-('Arnaud', 'arnaudandriatahiana00@gmail.com', 'Admin00@@');
+('Arnaud', 'admin@gmail.com', 'Admin00@@');
 
 -- trigger pour mettre à jour la disponibilité des livres
 DELIMITER //
